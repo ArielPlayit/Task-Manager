@@ -3,10 +3,16 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './tarea/entities/task.entity';
 import { TaskModule } from './tarea/task.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
-  ConfigModule.forRoot(),
+  ConfigModule.forRoot({
+    isGlobal: true,
+  }),
   TypeOrmModule.forRoot({
     type: 'postgres',
     host: process.env.DB_HOST,
@@ -17,7 +23,13 @@ import { TaskModule } from './tarea/task.module';
     autoLoadEntities: true,
     synchronize: true,
   }),
-  TaskModule
+  TaskModule,
+  AuthModule,
+  UserModule
   ],
+  providers: [{
+    provide: APP_GUARD,
+    useClass: JwtAuthGuard
+  }]
 })
 export class AppModule {}
